@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Authentication Callback</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <script>
+    // Supabaseの設定
+    const supabaseUrl = "https://oytnsshvjsaamyppvpth.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dG5zc2h2anNhYW15cHB2cHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg4MzcxMzgsImV4cCI6MjA0NDQxMzEzOH0.qD3PEJOZAsZ4Zgtp6r6qUqcbp0QMr3-DYe_lTJE1Vko";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // 認証状態を取得し、メインウィンドウに送信
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        // メインウィンドウにメッセージを送信
+        window.opener.postMessage({ type: 'AUTH_SUCCESS', user: session.user }, '*');
+      } else {
+        window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+      }
+      // 認証が終わったらポップアップを閉じる
+      window.close();
+    });
+  </script>
+</body>
+</html>
