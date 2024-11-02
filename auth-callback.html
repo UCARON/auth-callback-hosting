@@ -17,16 +17,16 @@
       if (session) {
         alert("Authentication successful. User ID: " + session.user.id + ", Email: " + session.user.email); // 認証成功
         // メインウィンドウにメッセージを送信（window.openerが存在する場合のみ）
-        if (window.opener) {
-          window.opener.postMessage({ type: 'AUTH_SUCCESS', user: session.user }, '*');
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'AUTH_SUCCESS', user: session.user }, 'https://udohofficial.itch.io/rabbitpuzzle');
           alert("Sent AUTH_SUCCESS message to main window"); // 成功メッセージ送信後
         } else {
           alert("Main window is not available for messaging.");
         }
       } else {
         alert("Authentication failed"); // 認証失敗
-        if (window.opener) {
-          window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'AUTH_FAILURE' }, 'https://udohofficial.itch.io/rabbitpuzzle');
           alert("Sent AUTH_FAILURE message to main window"); // 失敗メッセージ送信後
         } else {
           alert("Main window is not available for messaging.");
@@ -36,8 +36,8 @@
       window.close();
     }).catch(error => {
       alert("Error retrieving session: " + error.message); // エラー発生時
-      if (window.opener) {
-        window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({ type: 'AUTH_FAILURE' }, 'https://udohofficial.itch.io/rabbitpuzzle');
         alert("Sent AUTH_FAILURE message to main window due to error"); // エラーによる失敗メッセージ送信後
       } else {
         alert("Main window is not available for messaging.");
