@@ -13,13 +13,23 @@
 
     // 認証状態を取得し、メインウィンドウに送信
     supabaseClient.auth.getSession().then(({ data: { session } }) => {
+      alert("Session retrieval started"); // セッション取得開始時
       if (session) {
+        alert("Authentication successful. User ID: " + session.user.id + ", Email: " + session.user.email); // 認証成功
         // メインウィンドウにメッセージを送信
         window.opener.postMessage({ type: 'AUTH_SUCCESS', user: session.user }, '*');
+        alert("Sent AUTH_SUCCESS message to main window"); // 成功メッセージ送信後
       } else {
+        alert("Authentication failed"); // 認証失敗
         window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+        alert("Sent AUTH_FAILURE message to main window"); // 失敗メッセージ送信後
       }
       // 認証が終わったらポップアップを閉じる
+      window.close();
+    }).catch(error => {
+      alert("Error retrieving session: " + error.message); // エラー発生時
+      window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+      alert("Sent AUTH_FAILURE message to main window due to error"); // エラーによる失敗メッセージ送信後
       window.close();
     });
   </script>
