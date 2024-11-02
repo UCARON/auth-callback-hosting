@@ -13,13 +13,10 @@
 
     // 認証状態を取得し、メインウィンドウに送信
     supabaseClient.auth.getSession().then(({ data: { session } }) => {
-      alert("Session retrieval started"); // セッション取得開始時
       if (session) {
-        alert("Authentication successful. User ID: " + session.user.id + ", Email: " + session.user.email); // 認証成功
         // メインウィンドウにメッセージを送信（window.openerが存在する場合のみ）
         if (window.opener) {
           window.opener.postMessage({ type: 'AUTH_SUCCESS', user: session.user }, '*');
-          alert("Sent AUTH_SUCCESS message to main window"); // 成功メッセージ送信後
         } else {
           alert("Main window is not available for messaging.");
         }
