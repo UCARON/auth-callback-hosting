@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Authentication Callback</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -11,39 +13,57 @@
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dG5zc2h2anNhYW15cHB2cHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg4MzcxMzgsImV4cCI6MjA0NDQxMzEzOH0.qD3PEJOZAsZ4Zgtp6r6qUqcbp0QMr3-DYe_lTJE1Vko";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // 認証状態を取得し、メインウィンドウに送信
+    // Google認証を開始する関数
+    async function handleAuthentication() {
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: 'https://ucaron.github.io/auth-callback-hosting/auth-callback.html'
+          }
+        });
+
+        if (error) {
+          console.error("認証エラー:", error);
+          sendAuthResultToParent(false, null);
+        }
+      } catch (error) {
+        console.error("認証中にエラーが発生しました:", error);
+        sendAuthResultToParent(false, null);
+      }
+    }
+
+    // 認証結果をメインウィンドウに送信する関数
+    function sendAuthResultToParent(isSuccess, user) {
+      if (window.opener) {
+        if (isSuccess) {
+          window.opener.postMessage({ type: 'AUTH_SUCCESS', user: user }, '*');
+        } else {
+          window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+        }
+      } else {
+        console.warn("メインウィンドウにアクセスできませんでした。");
+      }
+      // ポップアップを閉じる
+      window.close();
+    }
+
+    // 認証後のセッション取得とメインウィンドウへの送信
     supabaseClient.auth.getSession().then(({ data: { session } }) => {
-      alert("Session retrieval started"); // セッション取得開始時
       if (session) {
-        alert("Authentication successful. User ID: " + session.user.id + ", Email: " + session.user.email); // 認証成功
-        // メインウィンドウにメッセージを送信（window.openerが存在する場合のみ）
-        if (window.opener && !window.opener.closed) {
-          window.opener.postMessage({ type: 'AUTH_SUCCESS', user: session.user }, 'https://udohofficial.itch.io/rabbitpuzzle');
-          alert("Sent AUTH_SUCCESS message to main window"); // 成功メッセージ送信後
-        } else {
-          alert("Main window is not available for messaging.");
-        }
+        console.log("認証成功:", session.user);
+        sendAuthResultToParent(true, session.user);
       } else {
-        alert("Authentication failed"); // 認証失敗
-        if (window.opener && !window.opener.closed) {
-          window.opener.postMessage({ type: 'AUTH_FAILURE' }, 'https://udohofficial.itch.io/rabbitpuzzle');
-          alert("Sent AUTH_FAILURE message to main window"); // 失敗メッセージ送信後
-        } else {
-          alert("Main window is not available for messaging.");
-        }
+        console.log("セッションが存在しません。認証失敗。");
+        sendAuthResultToParent(false, null);
       }
-      // 認証が終わったらポップアップを閉じる
-      window.close();
     }).catch(error => {
-      alert("Error retrieving session: " + error.message); // エラー発生時
-      if (window.opener && !window.opener.closed) {
-        window.opener.postMessage({ type: 'AUTH_FAILURE' }, 'https://udohofficial.itch.io/rabbitpuzzle');
-        alert("Sent AUTH_FAILURE message to main window due to error"); // エラーによる失敗メッセージ送信後
-      } else {
-        alert("Main window is not available for messaging.");
-      }
-      window.close();
+      console.error("セッション取得エラー:", error);
+      sendAuthResultToParent(false, null);
     });
+
+    // 認証を開始
+    handleAuthentication();
   </script>
 </body>
 </html>
