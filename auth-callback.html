@@ -1,3 +1,5 @@
+<!-- auth-callback.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,11 +23,16 @@
         } else {
           window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
         }
+        // ポップアップを閉じる
+        window.close();
       } else {
         console.warn("メインウィンドウにアクセスできませんでした。");
+        // モバイルの場合はローカルストレージに保存してリダイレクト
+        if (isSuccess) {
+          localStorage.setItem('authUserData', JSON.stringify(user));
+        }
+        window.location.href = 'index.html'; // 必要に応じてURLを変更
       }
-      // ポップアップを閉じる
-      window.close();
     }
 
     // 認証後のセッション取得とメインウィンドウへの送信
@@ -41,7 +48,6 @@
       console.error("セッション取得エラー:", error);
       sendAuthResultToParent(false, null);
     });
-
   </script>
 </body>
 </html>
