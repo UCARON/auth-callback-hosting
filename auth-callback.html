@@ -13,26 +13,6 @@
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dG5zc2h2anNhYW15cHB2cHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg4MzcxMzgsImV4cCI6MjA0NDQxMzEzOH0.qD3PEJOZAsZ4Zgtp6r6qUqcbp0QMr3-DYe_lTJE1Vko";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Google認証を開始する関数
-    async function handleAuthentication() {
-      try {
-        const { data, error } = await supabaseClient.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: 'https://ucaron.github.io/auth-callback-hosting/auth-callback.html'
-          }
-        });
-
-        if (error) {
-          console.error("認証エラー:", error);
-          sendAuthResultToParent(false, null);
-        }
-      } catch (error) {
-        console.error("認証中にエラーが発生しました:", error);
-        sendAuthResultToParent(false, null);
-      }
-    }
-
     // 認証結果をメインウィンドウに送信する関数
     function sendAuthResultToParent(isSuccess, user) {
       if (window.opener) {
@@ -62,8 +42,6 @@
       sendAuthResultToParent(false, null);
     });
 
-    // 認証を開始
-    handleAuthentication();
   </script>
 </body>
 </html>
