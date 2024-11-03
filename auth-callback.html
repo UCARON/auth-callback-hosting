@@ -10,44 +10,56 @@
 </head>
 <body>
   <script>
-    // Supabaseの設定
-    const supabaseUrl = "https://oytnsshvjsaamyppvpth.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dG5zc2h2anNhYW15cHB2cHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg4MzcxMzgsImV4cCI6MjA0NDQxMzEzOH0.qD3PEJOZAsZ4Zgtp6r6qUqcbp0QMr3-DYe_lTJE1Vko";
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    (async () => {
+      // Supabaseの設定
+      const supabaseUrl = "https://oytnsshvjsaamyppvpth.supabase.co";
+      const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dG5zc2h2anNhYW15cHB2cHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg4MzcxMzgsImV4cCI6MjA0NDQxMzEzOH0.qD3PEJOZAsZ4Zgtp6r6qUqcbp0QMr3-DYe_lTJE1Vko";
+      const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // 認証結果をメインウィンドウに送信する関数
-    function sendAuthResultToParent(isSuccess, user) {
-      if (window.opener) {
-        if (isSuccess) {
-          window.opener.postMessage({ type: 'AUTH_SUCCESS', user: user }, '*');
+      // 認証結果をメインウィンドウに送信する関数
+      function sendAuthResultToParent(isSuccess, user) {
+        if (window.opener) {
+          if (isSuccess) {
+            window.opener.postMessage({ type: 'AUTH_SUCCESS', user: user }, '*');
+          } else {
+            window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+          }
+          // ポップアップを閉じる
+          window.close();
         } else {
-          window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+          console.warn("メインウィンドウにアクセスできませんでした。");
+          // モバイルの場合はローカルストレージに保存してリダイレクト
+          if (isSuccess) {
+            localStorage.setItem('authUserData', JSON.stringify(user));
+          }
+          window.location.href = 'index.html'; // 必要に応じてURLを変更
         }
-        // ポップアップを閉じる
-        window.close();
-      } else {
-        console.warn("メインウィンドウにアクセスできませんでした。");
-        // モバイルの場合はローカルストレージに保存してリダイレクト
-        if (isSuccess) {
-          localStorage.setItem('authUserData', JSON.stringify(user));
-        }
-        window.location.href = 'index.html'; // 必要に応じてURLを変更
       }
-    }
 
-    // 認証後のセッション取得とメインウィンドウへの送信
-    supabaseClient.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        console.log("認証成功:", session.user);
-        sendAuthResultToParent(true, session.user);
-      } else {
-        console.log("セッションが存在しません。認証失敗。");
+      // 認証状態の変更を監視
+      supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        if (session) {
+          console.log("認証成功:", session.user);
+          sendAuthResultToParent(true, session.user);
+        } else {
+          console.log("セッションが存在しません。認証失敗。");
+          sendAuthResultToParent(false, null);
+        }
+      });
+
+      // URLに認証情報が含まれている場合、セッションを更新
+      const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
+      if (error) {
+        console.error("セッション取得エラー:", error);
         sendAuthResultToParent(false, null);
+      } else if (data.session) {
+        console.log("セッション取得成功:", data.session.user);
+        sendAuthResultToParent(true, data.session.user);
+      } else {
+        // セッションがない場合、認証を開始
+        supabaseClient.auth.signInWithOAuth({ provider: 'google' });
       }
-    }).catch(error => {
-      console.error("セッション取得エラー:", error);
-      sendAuthResultToParent(false, null);
-    });
+    })();
   </script>
 </body>
 </html>
