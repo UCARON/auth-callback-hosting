@@ -54,15 +54,19 @@
       // URLに認証情報が含まれている場合、セッションを更新
       const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
       if (error) {
+        alert("セッション取得エラー");
         console.error("セッション取得エラー:", error);
         sendAuthResultToParent(false, null);
       } else if (data.session) {
         console.log("セッション取得成功:", data.session.user);
         sendAuthResultToParent(true, data.session.user);
       } else {
+        alert("google");
+
         // セッションがない場合、認証を開始
         supabaseClient.auth.signInWithOAuth({ provider: 'google' });
       }
+
     })();
   </script>
 </body>
