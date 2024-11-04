@@ -16,6 +16,7 @@
       const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dG5zc2h2anNhYW15cHB2cHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg4MzcxMzgsImV4cCI6MjA0NDQxMzEzOH0.qD3PEJOZAsZ4Zgtp6r6qUqcbp0QMr3-DYe_lTJE1Vko";
       const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+
       // 認証結果をメインウィンドウに送信する関数
       function sendAuthResultToParent(isSuccess, user) {
         if (window.opener) {
@@ -40,18 +41,15 @@
       }
 
       // URLに認証情報が含まれている場合、セッションを更新
-      const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
+      const { data, error } = await supabaseClient.auth.exchangeCodeForSession(window.location.href);
       if (data && data.session) {
         console.log("セッション取得成功:", data.session.user);
-        alert("セッション取得成功:");
         sendAuthResultToParent(true, data.session.user);
       } else if (error) {
         console.error("セッション取得エラー:", error);
-        alert("セッション取得エラー:");
         sendAuthResultToParent(false, null);
       } else {
         // セッションがない場合、認証を開始
-        alert("セッションがない場合、認証を開始");
         supabaseClient.auth.signInWithOAuth({ provider: 'google' });
       }
     })();
