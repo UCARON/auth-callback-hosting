@@ -31,7 +31,9 @@
           if (isSuccess) {
             localStorage.setItem('authUserData', JSON.stringify(user));
             alert("認証成功しました。ゲーム画面に戻ります。");
-          }
+          } else
+            alert("認証失敗しました。ゲーム画面に戻ります。");
+
           // ゲームページにリダイレクト
           window.location.href = 'https://udohofficial.itch.io/rabbitpuzzle';
         }
