@@ -23,7 +23,6 @@
           if (isSuccess) {
             window.opener.postMessage({ type: 'AUTH_SUCCESS', user: user }, '*');
           } else {
-            alert("AUTH_FAILURE");
             window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
           }
           // ポップアップを閉じる
@@ -42,14 +41,12 @@
       // 認証状態の変更を監視
       supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (session) {
-          alert("認証成功 - onAuthStateChange");
           console.log("認証成功:", session.user);
           sendAuthResultToParent(true, session.user);
         }
       });
 
       // まずGoogle認証を開始
-      alert("Google認証開始");
       await supabaseClient.auth.signInWithOAuth({ 
         provider: 'google',
         options: {
