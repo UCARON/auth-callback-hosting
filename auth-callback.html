@@ -19,11 +19,16 @@
       // 認証結果をメインウィンドウに送信する関数
       function sendAuthResultToParent(isSuccess, user) {
         if (window.opener) {
+          alert("opening");
           // デスクトップ環境でポップアップがある場合
           if (isSuccess) {
             window.opener.postMessage({ type: 'AUTH_SUCCESS', user: user }, '*');
+          alert("AUTH_SUCCESS");
+
           } else {
             window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+          alert("AUTH_FAILURE");
+
           }
           window.close(); // ポップアップを閉じる
         } else {
