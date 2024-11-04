@@ -58,6 +58,7 @@
         console.error("セッション取得エラー:", error);
         sendAuthResultToParent(false, null);
       } else if (data.session) {
+        alert("セッション取得成功");
         console.log("セッション取得成功:", data.session.user);
         sendAuthResultToParent(true, data.session.user);
       } else {
