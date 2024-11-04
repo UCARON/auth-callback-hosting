@@ -16,7 +16,6 @@
       const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dG5zc2h2anNhYW15cHB2cHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg4MzcxMzgsImV4cCI6MjA0NDQxMzEzOH0.qD3PEJOZAsZ4Zgtp6r6qUqcbp0QMr3-DYe_lTJE1Vko";
       const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-
       // 認証結果をメインウィンドウに送信する関数
       function sendAuthResultToParent(isSuccess, user) {
         if (window.opener) {
@@ -32,22 +31,31 @@
           if (isSuccess) {
             localStorage.setItem('authUserData', JSON.stringify(user));
             alert("認証成功しました。ゲーム画面に戻ります。");
-          } else {
-            alert("認証失敗しました。ゲーム画面に戻ります。");
           }
           // ゲームページにリダイレクト
           window.location.href = 'https://udohofficial.itch.io/rabbitpuzzle';
         }
       }
 
+      // 認証状態の変更を監視
+      supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        if (session) {
+          console.log("認証成功:", session.user);
+          sendAuthResultToParent(true, session.user);
+        } else {
+          console.log("セッションが存在しません。認証失敗。");
+          sendAuthResultToParent(false, null);
+        }
+      });
+
       // URLに認証情報が含まれている場合、セッションを更新
-      const { data, error } = await supabaseClient.auth.exchangeCodeForSession(window.location.href);
-      if (data && data.session) {
-        console.log("セッション取得成功:", data.session.user);
-        sendAuthResultToParent(true, data.session.user);
-      } else if (error) {
+      const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
+      if (error) {
         console.error("セッション取得エラー:", error);
         sendAuthResultToParent(false, null);
+      } else if (data.session) {
+        console.log("セッション取得成功:", data.session.user);
+        sendAuthResultToParent(true, data.session.user);
       } else {
         // セッションがない場合、認証を開始
         supabaseClient.auth.signInWithOAuth({ provider: 'google' });
