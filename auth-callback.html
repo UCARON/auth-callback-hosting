@@ -2,12 +2,14 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Authentication Callback</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
   <script>
     (async () => {
@@ -19,6 +21,7 @@
       // 認証結果をメインウィンドウに送信する関数
       function sendAuthResultToParent(isSuccess, user) {
         if (window.opener) {
+          // デスクトップ環境でポップアップがある場合
           if (isSuccess) {
             window.opener.postMessage({ type: 'AUTH_SUCCESS', user: user }, '*');
           } else {
@@ -28,13 +31,15 @@
           window.close();
         } else {
           console.warn("メインウィンドウにアクセスできませんでした。");
-          // モバイルの場合はローカルストレージに保存してリダイレクト
+          // モバイル環境の場合、ローカルストレージに保存して元のページに戻る
           if (isSuccess) {
             localStorage.setItem('authUserData', JSON.stringify(user));
           }
-          window.location.href = 'index.html'; // 必要に応じてURLを変更
+          // 前のページに戻る
+          window.location.href = document.referrer || '/';
         }
       }
+
 
       // 認証状態の変更を監視
       supabaseClient.auth.onAuthStateChange(async (event, session) => {
@@ -62,4 +67,5 @@
     })();
   </script>
 </body>
+
 </html>
