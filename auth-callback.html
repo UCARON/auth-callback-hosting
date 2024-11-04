@@ -31,34 +31,22 @@
           if (isSuccess) {
             localStorage.setItem('authUserData', JSON.stringify(user));
             alert("認証成功しました。ゲーム画面に戻ります。");
-          } else
+          } else {
             alert("認証失敗しました。ゲーム画面に戻ります。");
-
+          }
           // ゲームページにリダイレクト
           window.location.href = 'https://udohofficial.itch.io/rabbitpuzzle';
         }
       }
 
-      // 認証状態の変更を監視
-      supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        alert("here");
-        if (session) {
-          console.log("認証成功:", session.user);
-          sendAuthResultToParent(true, session.user);
-        } else {
-          console.log("セッションが存在しません。認証失敗。");
-          sendAuthResultToParent(false, null);
-        }
-      });
-
       // URLに認証情報が含まれている場合、セッションを更新
       const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
-      if (error) {
-        console.error("セッション取得エラー:", error);
-        sendAuthResultToParent(false, null);
-      } else if (data.session) {
+      if (data && data.session) {
         console.log("セッション取得成功:", data.session.user);
         sendAuthResultToParent(true, data.session.user);
+      } else if (error) {
+        console.error("セッション取得エラー:", error);
+        sendAuthResultToParent(false, null);
       } else {
         // セッションがない場合、認証を開始
         supabaseClient.auth.signInWithOAuth({ provider: 'google' });
