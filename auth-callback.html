@@ -41,6 +41,7 @@
 
       // 認証状態の変更を監視
       supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        alert("here");
         if (session) {
           console.log("認証成功:", session.user);
           sendAuthResultToParent(true, session.user);
