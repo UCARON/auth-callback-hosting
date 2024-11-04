@@ -1,5 +1,3 @@
-<!-- auth-callback.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,34 +42,21 @@
       // 認証状態の変更を監視
       supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (session) {
-          alert("認証成功");
-
+          alert("認証成功 - onAuthStateChange");
           console.log("認証成功:", session.user);
           sendAuthResultToParent(true, session.user);
-        } else {
-          alert("セッションが存在しません。認証失敗。");
-
-          console.log("セッションが存在しません。認証失敗。");
-          sendAuthResultToParent(false, null);
         }
       });
 
-      // URLに認証情報が含まれている場合、セッションを更新
-      const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
-      if (error) {
-        alert("セッション取得エラー");
-        console.error("セッション取得エラー:", error);
-        sendAuthResultToParent(false, null);
-      } else if (data.session) {
-        alert("セッション取得成功");
-        console.log("セッション取得成功:", data.session.user);
-        sendAuthResultToParent(true, data.session.user);
-      } else {
-        alert("google");
-
-        // セッションがない場合、認証を開始
-        supabaseClient.auth.signInWithOAuth({ provider: 'google' });
-      }
+      // まずGoogle認証を開始
+      alert("Google認証開始");
+      await supabaseClient.auth.signInWithOAuth({ 
+        provider: 'google',
+        options: {
+          redirectTo: window.location.href
+        }
+      });
+      // ここには到達しない（リダイレクトが発生するため）
 
     })();
   </script>
