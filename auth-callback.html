@@ -1,3 +1,5 @@
+<!-- auth-callback.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,23 +21,19 @@
       // 認証結果をメインウィンドウに送信する関数
       function sendAuthResultToParent(isSuccess, user) {
         if (window.opener) {
-          alert("opening");
           // デスクトップ環境でポップアップがある場合
           if (isSuccess) {
             window.opener.postMessage({ type: 'AUTH_SUCCESS', user: user }, '*');
-          alert("AUTH_SUCCESS");
-
           } else {
             window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
-          alert("AUTH_FAILURE");
-
           }
-          window.close(); // ポップアップを閉じる
+          // ポップアップを閉じる
+          window.close();
         } else {
-          // モバイル環境で認証成功の場合、ローカルストレージに保存してリダイレクト
+          console.warn("メインウィンドウにアクセスできませんでした。");
+          // モバイル環境の場合、ローカルストレージに保存してゲームページにリダイレクト
           if (isSuccess) {
             localStorage.setItem('authUserData', JSON.stringify(user));
-            alert("認証成功しました。ゲーム画面に戻ります。");
           }
           // ゲームページにリダイレクト
           window.location.href = 'https://udohofficial.itch.io/rabbitpuzzle';
