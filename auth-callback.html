@@ -31,14 +31,15 @@
           window.close();
         } else {
           console.warn("メインウィンドウにアクセスできませんでした。");
-          // モバイル環境の場合、ローカルストレージに保存して元のページに戻る
+          // モバイル環境の場合、ローカルストレージに保存してゲームページにリダイレクト
           if (isSuccess) {
             localStorage.setItem('authUserData', JSON.stringify(user));
           }
-          // 前のページに戻る
-          window.location.href = document.referrer || '/';
+          // ゲームページにリダイレクト
+          window.location.href = 'https://udohofficial.itch.io/rabbitpuzzle';
         }
       }
+
 
 
       // 認証状態の変更を監視
