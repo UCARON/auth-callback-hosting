@@ -43,12 +43,15 @@
       const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
       if (data && data.session) {
         console.log("セッション取得成功:", data.session.user);
+        alert("セッション取得成功:");
         sendAuthResultToParent(true, data.session.user);
       } else if (error) {
         console.error("セッション取得エラー:", error);
+        alert("セッション取得エラー:");
         sendAuthResultToParent(false, null);
       } else {
         // セッションがない場合、認証を開始
+        alert("セッションがない場合、認証を開始");
         supabaseClient.auth.signInWithOAuth({ provider: 'google' });
       }
     })();
