@@ -25,6 +25,7 @@
           if (isSuccess) {
             window.opener.postMessage({ type: 'AUTH_SUCCESS', user: user }, '*');
           } else {
+            alert("AUTH_FAILURE");
             window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
           }
           // ポップアップを閉じる
