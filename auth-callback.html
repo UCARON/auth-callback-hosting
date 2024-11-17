@@ -19,6 +19,7 @@
       // 認証結果をメインウィンドウに送信する関数
       function sendAuthResultToParent(isSuccess, user) {
         if (window.opener) {
+          alert("can window.opener");
           try {
             // デスクトップ環境のポップアップ処理
             if (isSuccess) {
@@ -31,6 +32,8 @@
             console.error("ポップアップ経由のデータ送信に失敗:", error);
           }
         } else {
+          alert("cannnot window.opener");
+
           console.warn("メインウィンドウにアクセスできません。モバイル環境として処理します。");
           if (isSuccess) {
             // モバイル環境: ローカルストレージに保存
