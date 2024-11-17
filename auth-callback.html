@@ -19,18 +19,21 @@
       // 認証結果をメインウィンドウに送信する関数
       function sendAuthResultToParent(isSuccess, user) {
         if (window.opener) {
-          // デスクトップ環境でポップアップがある場合
-          if (isSuccess) {
-            window.opener.postMessage({ type: 'AUTH_SUCCESS', user: user }, '*');
-          } else {
-            window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+          try {
+            // デスクトップ環境のポップアップ処理
+            if (isSuccess) {
+              window.opener.postMessage({ type: 'AUTH_SUCCESS', user: user }, '*');
+            } else {
+              window.opener.postMessage({ type: 'AUTH_FAILURE' }, '*');
+            }
+            window.close(); // ポップアップを閉じる
+          } catch (error) {
+            console.error("ポップアップ経由のデータ送信に失敗:", error);
           }
-          // ポップアップを閉じる
-          window.close();
         } else {
-          console.warn("メインウィンドウにアクセスできませんでした。");
-          // モバイル環境の場合、ローカルストレージに保存してゲームページにリダイレクト
+          console.warn("メインウィンドウにアクセスできません。モバイル環境として処理します。");
           if (isSuccess) {
+            // モバイル環境: ローカルストレージに保存
             localStorage.setItem('authUserData', JSON.stringify(user));
           }
           // ゲームページにリダイレクト
@@ -47,7 +50,7 @@
       });
 
       // まずGoogle認証を開始
-      await supabaseClient.auth.signInWithOAuth({ 
+      await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.href
