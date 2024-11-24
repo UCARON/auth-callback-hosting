@@ -56,12 +56,17 @@
       });
 
       // まずGoogle認証を開始
+      alert("Google認証を開始します");
+
       await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.href
         }
       });
+
+      alert("Google認証が完了しました（リダイレクトされるため、ここには到達しないはずです）");
+
       // ここには到達しない（リダイレクトが発生するため）
 
     })();
