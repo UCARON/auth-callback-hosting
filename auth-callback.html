@@ -58,17 +58,23 @@
       // まずGoogle認証を開始
       alert("Google認証を開始します");
 
-      await supabaseClient.auth.signInWithOAuth({
+      const result = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.href
+          redirectTo: 'https://udohofficial.itch.io/rabbitpuzzle'
         }
       });
 
-      alert("Google認証が完了しました（リダイレクトされるため、ここには到達しないはずです）");
+      console.log("signInWithOAuth result:", result);
+      alert("Google認証が完了しました（リダイレクトが発生しない可能性があります）");
 
-      // ここには到達しない（リダイレクトが発生するため）
-
+      if (!result.error) {
+        // リダイレクトされない場合、手動でゲームページに移動
+        window.location.href = 'https://udohofficial.itch.io/rabbitpuzzle';
+      } else {
+        console.error("Google認証エラー:", result.error);
+      }
+      
     })();
   </script>
 </body>
