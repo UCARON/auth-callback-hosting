@@ -70,6 +70,12 @@
         alert("Google認証が完了しました（リダイレクトが発生しない可能性があります）");
 
         if (!result.error) {
+          // 認証成功時にユーザーデータをローカルストレージに保存
+          if (result.data) {
+            localStorage.setItem('authUserData', JSON.stringify(result.data.user));
+            console.log("認証データをローカルストレージに保存しました:", result.data.user);
+          }
+
           // リダイレクトされない場合、手動でゲームページに移動
           window.location.href = 'https://udohofficial.itch.io/rabbitpuzzle';
         } else {
@@ -79,7 +85,8 @@
         console.error("認証処理中のエラー:", error);
         alert("認証処理でエラーが発生しました。詳細はコンソールを確認してください。");
       }
-      
+
+
     })();
   </script>
 </body>
