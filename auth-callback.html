@@ -67,27 +67,25 @@
         });
 
         console.log("signInWithOAuth result:", result);
-        alert("Google認証が完了しました（リダイレクトが発生しない可能性があります）");
+        alert(`signInWithOAuth result: ${JSON.stringify(result, null, 2)}`);
 
         if (!result.error) {
-          // 認証成功時にユーザーデータをローカルストレージに保存
-          if (result.data) {
+          if (result.data && result.data.user) {
+            // 認証データをローカルストレージに保存
             localStorage.setItem('authUserData', JSON.stringify(result.data.user));
-            console.log("認証データをローカルストレージに保存しました:", result.data.user);
             alert(`認証データ: ${JSON.stringify(result.data.user, null, 2)}`);
-          }else{
-            alert("認証データをローカルストレージに失敗しました:");
+          } else {
+            alert("認証データが見つかりません。リダイレクト後に取得する必要があります。");
           }
-
-          // リダイレクトされない場合、手動でゲームページに移動
-          window.location.href = 'https://udohofficial.itch.io/rabbitpuzzle';
         } else {
           console.error("Google認証エラー:", result.error);
+          alert(`Google認証エラー: ${JSON.stringify(result.error, null, 2)}`);
         }
       } catch (error) {
         console.error("認証処理中のエラー:", error);
-        alert("認証処理でエラーが発生しました。詳細はコンソールを確認してください。");
+        alert(`認証処理中のエラー: ${error.message}`);
       }
+
 
 
     })();
