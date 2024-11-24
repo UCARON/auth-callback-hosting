@@ -11,8 +11,7 @@
 <body>
   <script>
     (async () => {
-
-      alert("auth-callback: スクリプトが実行されました");
+      alert("auth-callback started");
 
       // Supabaseの設定
       const supabaseUrl = "https://oytnsshvjsaamyppvpth.supabase.co";
@@ -22,7 +21,7 @@
       // 認証結果をメインウィンドウに送信する関数
       function sendAuthResultToParent(isSuccess, user) {
         if (window.opener) {
-          alert("window.openerが使用可能: デスクトップ環境でポップアップ処理を実行");
+          alert("Using window.opener: Processing for desktop environment");
           try {
             // デスクトップ環境のポップアップ処理
             if (isSuccess) {
@@ -32,14 +31,14 @@
             }
             window.close(); // ポップアップを閉じる
           } catch (error) {
-            console.error("ポップアップ経由のデータ送信に失敗:", error);
+            console.error("Failed to send data via popup:", error);
           }
         } else {
-          alert("window.openerが使用不可: モバイル環境として処理を続行");
+          alert("window.opener unavailable: Treating as mobile environment");
 
-          console.warn("メインウィンドウにアクセスできません。モバイル環境として処理します。");
+          console.warn("Unable to access the main window. Processing as a mobile environment.");
           if (isSuccess) {
-            // モバイル環境: ユーザーデータをローカルストレージに保存
+            // モバイル環境: ローカルストレージに保存
             localStorage.setItem('authUserData', JSON.stringify(user));
           }
           // ゲームページにリダイレクト
@@ -50,49 +49,34 @@
       // 認証状態の変更を監視
       supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (session) {
-          console.log("認証成功:", session.user);
+          console.log("Authentication successful:", session.user);
+          alert(`Authentication successful! User: ${JSON.stringify(session.user, null, 2)}`);
           sendAuthResultToParent(true, session.user);
+        } else {
+          console.warn("No active session. Please authenticate again.");
         }
       });
 
-      // Google認証の開始
-      alert("Google認証を開始します");
+      // 現在のセッションを確認
+      const { data: { session }, error } = await supabaseClient.auth.getSession();
 
-      (async () => {
-        // 認証状態の変更を監視
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-          if (session) {
-            console.log("認証成功:", session.user);
-            // ローカルストレージに認証データを保存
-            localStorage.setItem("authUserData", JSON.stringify(session.user));
-            alert(`認証成功! 認証データ: ${JSON.stringify(session.user, null, 2)}`);
-            // ゲームページをロード
-            startGame(session.user);
-          } else {
-            alert("セッションが見つかりません。再認証が必要です。");
-            console.warn("セッションが見つかりません。再認証が必要です。");
+      if (!session) {
+        alert("No session found. Starting Google authentication...");
+        console.log("No session found. Redirecting to Google authentication...");
+
+        // Google認証を開始
+        await supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: window.location.href // 認証成功後に現在のURLにリダイレクト
           }
         });
-
-        // 現在のセッションを取得（リロード時の対応）
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
-        if (session) {
-          console.log("現在のセッション:", session);
-          alert("現在のセッション:", session);
-          localStorage.setItem("authUserData", JSON.stringify(session.user));
-          startGame(session.user);
-        }else{
-          alert("セッションが見つからないよ。");
-        }
-      })();
-
-      function startGame(user) {
-        console.log("Unity ゲームを開始:", user);
-        // Unity ゲームの初期化ロジックを記述
+        // この後、リダイレクトされるため到達しない
+      } else {
+        console.log("Session found:", session.user);
+        alert(`Session already exists! User: ${JSON.stringify(session.user, null, 2)}`);
+        sendAuthResultToParent(true, session.user); // 既存セッションを利用して処理
       }
-
-
-
     })();
   </script>
 </body>
