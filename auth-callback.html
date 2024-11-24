@@ -81,6 +81,8 @@
           alert("現在のセッション:", session);
           localStorage.setItem("authUserData", JSON.stringify(session.user));
           startGame(session.user);
+        }else{
+          alert("セッションが見つからないよ。");
         }
       })();
 
