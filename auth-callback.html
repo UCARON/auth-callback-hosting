@@ -12,7 +12,7 @@
   <script>
     (async () => {
 
-      alert("auth-callback");
+      alert("auth-callback: スクリプトが実行されました");
 
       // Supabaseの設定
       const supabaseUrl = "https://oytnsshvjsaamyppvpth.supabase.co";
@@ -22,7 +22,7 @@
       // 認証結果をメインウィンドウに送信する関数
       function sendAuthResultToParent(isSuccess, user) {
         if (window.opener) {
-          alert("can window.opener");
+          alert("window.openerが使用可能: デスクトップ環境でポップアップ処理を実行");
           try {
             // デスクトップ環境のポップアップ処理
             if (isSuccess) {
@@ -35,11 +35,11 @@
             console.error("ポップアップ経由のデータ送信に失敗:", error);
           }
         } else {
-          alert("cannnot window.opener");
+          alert("window.openerが使用不可: モバイル環境として処理を続行");
 
           console.warn("メインウィンドウにアクセスできません。モバイル環境として処理します。");
           if (isSuccess) {
-            // モバイル環境: ローカルストレージに保存
+            // モバイル環境: ユーザーデータをローカルストレージに保存
             localStorage.setItem('authUserData', JSON.stringify(user));
           }
           // ゲームページにリダイレクト
@@ -55,24 +55,29 @@
         }
       });
 
-      // まずGoogle認証を開始
+      // Google認証の開始
       alert("Google認証を開始します");
 
-      const result = await supabaseClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: 'https://udohofficial.itch.io/rabbitpuzzle'
+      try {
+        const result = await supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: 'https://udohofficial.itch.io/rabbitpuzzle'
+          }
+        });
+
+        console.log("signInWithOAuth result:", result);
+        alert("Google認証が完了しました（リダイレクトが発生しない可能性があります）");
+
+        if (!result.error) {
+          // リダイレクトされない場合、手動でゲームページに移動
+          window.location.href = 'https://udohofficial.itch.io/rabbitpuzzle';
+        } else {
+          console.error("Google認証エラー:", result.error);
         }
-      });
-
-      console.log("signInWithOAuth result:", result);
-      alert("Google認証が完了しました（リダイレクトが発生しない可能性があります）");
-
-      if (!result.error) {
-        // リダイレクトされない場合、手動でゲームページに移動
-        window.location.href = 'https://udohofficial.itch.io/rabbitpuzzle';
-      } else {
-        console.error("Google認証エラー:", result.error);
+      } catch (error) {
+        console.error("認証処理中のエラー:", error);
+        alert("認証処理でエラーが発生しました。詳細はコンソールを確認してください。");
       }
       
     })();
