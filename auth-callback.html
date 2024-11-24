@@ -74,6 +74,9 @@
           if (result.data) {
             localStorage.setItem('authUserData', JSON.stringify(result.data.user));
             console.log("認証データをローカルストレージに保存しました:", result.data.user);
+            alert("認証データをローカルストレージに保存しました:");
+          }else{
+            alert("認証データをローカルストレージに失敗しました:");
           }
 
           // リダイレクトされない場合、手動でゲームページに移動
