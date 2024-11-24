@@ -11,7 +11,7 @@
 <body>
   <script>
     (async () => {
-      alert("auth-callback started");
+      console.log("auth-callback started");
 
       // Supabaseの設定
       const supabaseUrl = "https://oytnsshvjsaamyppvpth.supabase.co";
@@ -21,7 +21,7 @@
       // 認証結果をメインウィンドウに送信する関数
       function sendAuthResultToParent(isSuccess, user) {
         if (window.opener) {
-          alert("Using window.opener: Processing for desktop environment");
+          console.log("Using window.opener: Processing for desktop environment");
           try {
             // デスクトップ環境のポップアップ処理
             if (isSuccess) {
@@ -34,7 +34,7 @@
             console.error("Failed to send data via popup:", error);
           }
         } else {
-          alert("window.opener unavailable: Treating as mobile environment");
+          console.log("window.opener unavailable: Treating as mobile environment");
 
           console.warn("Unable to access the main window. Processing as a mobile environment.");
           if (isSuccess) {
@@ -50,7 +50,6 @@
       supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (session) {
           console.log("Authentication successful:", session.user);
-          alert(`Authentication successful! User: ${JSON.stringify(session.user, null, 2)}`);
           sendAuthResultToParent(true, session.user);
         } else {
           console.warn("No active session. Please authenticate again.");
@@ -61,7 +60,6 @@
       const { data: { session }, error } = await supabaseClient.auth.getSession();
 
       if (!session) {
-        alert("No session found. Starting Google authentication...");
         console.log("No session found. Redirecting to Google authentication...");
 
         // Google認証を開始
@@ -74,7 +72,7 @@
         // この後、リダイレクトされるため到達しない
       } else {
         console.log("Session found:", session.user);
-        alert(`Session already exists! User: ${JSON.stringify(session.user, null, 2)}`);
+        alert("All done! Please restart the game to proceed.");
         sendAuthResultToParent(true, session.user); // 既存セッションを利用して処理
       }
     })();
