@@ -74,7 +74,7 @@
           if (result.data) {
             localStorage.setItem('authUserData', JSON.stringify(result.data.user));
             console.log("認証データをローカルストレージに保存しました:", result.data.user);
-            alert("認証データをローカルストレージに保存しました:");
+            alert(`認証データ: ${JSON.stringify(result.data.user, null, 2)}`);
           }else{
             alert("認証データをローカルストレージに失敗しました:");
           }
