@@ -58,32 +58,33 @@
       // Google認証の開始
       alert("Google認証を開始します");
 
-      try {
-        const result = await supabaseClient.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: 'https://udohofficial.itch.io/rabbitpuzzle'
+      (async () => {
+        // 認証状態の変更を監視
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+          if (session) {
+            console.log("認証成功:", session.user);
+            // ローカルストレージに認証データを保存
+            localStorage.setItem("authUserData", JSON.stringify(session.user));
+            alert(`認証成功! 認証データ: ${JSON.stringify(session.user, null, 2)}`);
+            // ゲームページをロード
+            startGame(session.user);
+          } else {
+            console.warn("セッションが見つかりません。再認証が必要です。");
           }
         });
 
-        console.log("signInWithOAuth result:", result);
-        alert(`signInWithOAuth result: ${JSON.stringify(result, null, 2)}`);
-
-        if (!result.error) {
-          if (result.data && result.data.user) {
-            // 認証データをローカルストレージに保存
-            localStorage.setItem('authUserData', JSON.stringify(result.data.user));
-            alert(`認証データ: ${JSON.stringify(result.data.user, null, 2)}`);
-          } else {
-            alert("認証データが見つかりません。リダイレクト後に取得する必要があります。");
-          }
-        } else {
-          console.error("Google認証エラー:", result.error);
-          alert(`Google認証エラー: ${JSON.stringify(result.error, null, 2)}`);
+        // 現在のセッションを取得（リロード時の対応）
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        if (session) {
+          console.log("現在のセッション:", session);
+          localStorage.setItem("authUserData", JSON.stringify(session.user));
+          startGame(session.user);
         }
-      } catch (error) {
-        console.error("認証処理中のエラー:", error);
-        alert(`認証処理中のエラー: ${error.message}`);
+      })();
+
+      function startGame(user) {
+        console.log("Unity ゲームを開始:", user);
+        // Unity ゲームの初期化ロジックを記述
       }
 
 
